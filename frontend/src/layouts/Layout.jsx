@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 const navigation = [
   { path: '/dashboard', label: 'Dashboard', icon: '🌌', badge: null },
   { path: '/map', label: 'Live Disaster Map', icon: '🗺️', badge: 'LIVE' },
-  { path: '/zones', label: 'Incident Zones', icon: '🌐', badge: null },
   { path: '/incidents', label: 'Incidents Registry', icon: '🚨', badge: null },
   { path: '/allocations', label: 'Resource Allocation', icon: '⚖️', badge: null },
   { path: '/missions', label: 'Rescue Missions', icon: '🚁', badge: null },
@@ -16,9 +15,23 @@ const navigation = [
 ];
 
 export function Layout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile drawer open
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Desktop collapse
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 1024 : false);
   const [currentTime, setCurrentTime] = useState(new Date().toUTCString());
   const location = useLocation();
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 1024;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -29,32 +42,26 @@ export function Layout() {
 
   const currentNav = navigation.find(n => location.pathname.startsWith(n.path));
 
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setSidebarOpen(prev => !prev);
+    } else {
+      setSidebarCollapsed(prev => !prev);
+    }
+  };
+
+  const closeMobileSidebar = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', position: 'relative', zIndex: 1 }}>
+    <div className={`app-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${sidebarOpen ? 'mobile-sidebar-open' : ''}`}>
       {/* Cosmic Sidebar */}
-      <aside
-        className={`sidebar ${sidebarOpen ? 'open' : ''}`}
-        style={{
-          width: 'var(--sidebar-width)',
-          background: 'rgba(7, 12, 34, 0.85)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderRight: '1px solid rgba(0, 242, 254, 0.16)',
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          bottom: 0,
-          zIndex: 100,
-          transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-          overflowY: 'auto',
-          boxShadow: '4px 0 24px rgba(0, 0, 0, 0.6)',
-        }}
-      >
+      <aside className="cosmic-sidebar">
         {/* Brand / Logo Section */}
-        <div style={{ padding: 'var(--spacing-lg) var(--spacing-md)', borderBottom: '1px solid rgba(0, 242, 254, 0.12)' }}>
+        <div style={{ padding: 'var(--spacing-lg) var(--spacing-md)', borderBottom: '1px solid rgba(0, 242, 254, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
             <div
               style={{
@@ -83,6 +90,26 @@ export function Layout() {
               </div>
             </div>
           </div>
+          {isMobile && (
+            <button
+              onClick={closeMobileSidebar}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--color-text-muted)',
+                fontSize: '18px',
+                cursor: 'pointer',
+                padding: '4px 8px',
+                borderRadius: 'var(--radius-sm)',
+              }}
+              title="Close Navigation"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        <div style={{ padding: '0 var(--spacing-md) var(--spacing-sm)' }}>
           <div
             style={{
               marginTop: 'var(--spacing-sm)',
@@ -126,7 +153,7 @@ export function Layout() {
                     textDecoration: 'none',
                     transition: 'all 0.2s ease',
                   })}
-                  onClick={() => setSidebarOpen(false)}
+                  onClick={closeMobileSidebar}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
                     <span style={{ fontSize: '17px' }}>{item.icon}</span>
@@ -164,7 +191,7 @@ export function Layout() {
               padding: '10px 14px',
               fontSize: '13px',
             }}
-            onClick={() => setSidebarOpen(false)}
+            onClick={closeMobileSidebar}
           >
             <span>+</span> Declare Incident
           </NavLink>
@@ -174,22 +201,11 @@ export function Layout() {
       {/* Sidebar mobile overlay */}
       <div
         className="sidebar-overlay"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(3, 6, 20, 0.75)',
-          backdropFilter: 'blur(4px)',
-          zIndex: 99,
-          display: sidebarOpen ? 'block' : 'none',
-        }}
-        onClick={() => setSidebarOpen(false)}
+        onClick={closeMobileSidebar}
       />
 
       {/* Main Content Area */}
-      <div style={{ flex: 1, marginLeft: 'var(--sidebar-width)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="main-content-wrapper">
         {/* Cosmic Topbar Header */}
         <header
           style={{
@@ -209,20 +225,10 @@ export function Layout() {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
             <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: 'var(--radius-sm)',
-                background: 'rgba(0, 242, 254, 0.08)',
-                border: '1px solid rgba(0, 242, 254, 0.25)',
-                color: 'var(--color-cyan)',
-                display: 'none',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-              }}
-              className="mobile-menu-btn"
+              onClick={toggleSidebar}
+              className="sidebar-toggle-btn"
+              title={sidebarCollapsed ? "Expand Navigation" : "Collapse Navigation"}
+              aria-label="Toggle navigation menu"
             >
               ☰
             </button>
@@ -279,30 +285,12 @@ export function Layout() {
         </header>
 
         {/* Page Content Viewport */}
-        <main style={{ padding: 'var(--spacing-lg)', flex: 1, position: 'relative' }}>
-          <Outlet />
+        <main className="main-viewport">
+          <div className="content-container">
+            <Outlet />
+          </div>
         </main>
       </div>
-
-      <style>{`
-        @media (max-width: 1024px) {
-          .mobile-menu-btn {
-            display: flex !important;
-          }
-          .sidebar {
-            transform: translateX(-100%);
-          }
-          .sidebar.open {
-            transform: translateX(0);
-          }
-          div[style*="marginLeft"] {
-            margin-left: 0 !important;
-          }
-          .header-clock {
-            display: none !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

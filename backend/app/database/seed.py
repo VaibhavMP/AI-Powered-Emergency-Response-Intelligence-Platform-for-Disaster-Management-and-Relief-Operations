@@ -21,20 +21,20 @@ def seed_database_if_empty(db):
 
         # 1. Depots
         depot1 = ResourceDepot(
-            name="Mumbai Central Emergency Depot",
-            longitude=72.8777,
-            latitude=19.0760,
-            address="Plot 12, Bandra-Kurla Complex, Mumbai",
+            name="Bhubaneswar Regional Emergency Depot",
+            longitude=85.8245,
+            latitude=20.2961,
+            address="State Disaster Management Complex, Bhubaneswar, Odisha",
             contact_person="Rajesh Sharma",
             contact_phone="+91 98201 12345",
             capacity=100000,
             is_active=True
         )
         depot2 = ResourceDepot(
-            name="Pune Regional Relief Base",
-            longitude=73.8567,
-            latitude=18.5204,
-            address="Sector 4, Shivaji Nagar, Pune",
+            name="Visakhapatnam Coastal Logistics Base",
+            longitude=83.2185,
+            latitude=17.6868,
+            address="Port Trust Logistics Zone, Visakhapatnam, Andhra Pradesh",
             contact_person="Priya Deshmukh",
             contact_phone="+91 98220 54321",
             capacity=75000,
@@ -90,17 +90,17 @@ def seed_database_if_empty(db):
 
         # 4. Incidents
         inc1 = Incident(
-            name="Konkan Coast Flash Flooding & Cyclone Alert",
-            disaster_type=DisasterTypeEnum.flood,
+            name="Odisha & Andhra Pradesh Severe Cyclone & Flash Flooding",
+            disaster_type=DisasterTypeEnum.cyclone,
             severity=SeverityEnum.critical,
             status=IncidentStatusEnum.active,
-            description="Severe torrential rainfall triggering extensive urban and coastal flooding across the Konkan belt with major infrastructure disruption.",
-            longitude=73.0169,
-            latitude=18.9894,
-            affected_population=18500,
-            estimated_affected_population=25000,
-            reported_by="NDRF Central Operations",
-            start_date=datetime.utcnow() - timedelta(days=2)
+            description="Severe cyclonic storm making landfall across coastal Andhra Pradesh and South Odisha yesterday, causing widespread flash flooding, storm surges, and extensive infrastructural damage.",
+            longitude=84.3500,
+            latitude=18.6500,
+            affected_population=185000,
+            estimated_affected_population=250000,
+            reported_by="IMD & Disaster Operations Command (Odisha-AP)",
+            start_date=datetime.utcnow() - timedelta(days=1)
         )
         inc2 = Incident(
             name="Satara Western Ghats Landslide",
@@ -134,35 +134,35 @@ def seed_database_if_empty(db):
         # 5. Affected Zones
         z1 = AffectedZone(
             incident_id=inc1.id,
-            name="Zone A - Chiplun River Basin",
+            name="Zone A - Ganjam & South Odisha Coastal Basin",
             severity=ZoneSeverityEnum.critical,
-            impact_score=9.2,
-            affected_population=9500,
-            vulnerable_children=1400,
-            vulnerable_elderly=1100,
-            vulnerable_medical=350,
-            buildings_damaged=420,
-            buildings_destroyed=85,
-            infrastructure_damage=0.75,
-            centroid_longitude=73.5186,
-            centroid_latitude=17.5323,
-            assessment_notes="Submerged ground levels; urgent power, clean drinking water, and boat evacuation required."
+            impact_score=9.4,
+            affected_population=98000,
+            vulnerable_children=14000,
+            vulnerable_elderly=11000,
+            vulnerable_medical=3500,
+            buildings_damaged=4200,
+            buildings_destroyed=850,
+            infrastructure_damage=0.85,
+            centroid_longitude=84.8500,
+            centroid_latitude=19.3200,
+            assessment_notes="Severe storm surge and flash flood inundation along Rushikulya river lowlands; ODRAF and NDRF power boat teams conducting mass evacuations."
         )
         z2 = AffectedZone(
             incident_id=inc1.id,
-            name="Zone B - Mahad Lowland Sector",
+            name="Zone B - Srikakulam & North Coastal Andhra Sector",
             severity=ZoneSeverityEnum.high,
-            impact_score=7.8,
-            affected_population=9000,
-            vulnerable_children=1200,
-            vulnerable_elderly=950,
-            vulnerable_medical=220,
-            buildings_damaged=280,
-            buildings_destroyed=35,
-            infrastructure_damage=0.45,
-            centroid_longitude=73.4188,
-            centroid_latitude=18.0827,
-            assessment_notes="Road connectivity severed on State Highway 96; relief supplies air-dropped."
+            impact_score=8.6,
+            affected_population=87000,
+            vulnerable_children=12000,
+            vulnerable_elderly=9500,
+            vulnerable_medical=2200,
+            buildings_damaged=2800,
+            buildings_destroyed=350,
+            infrastructure_damage=0.70,
+            centroid_longitude=83.8900,
+            centroid_latitude=18.3000,
+            assessment_notes="Severed coastal highway connectivity, uprooted power transmission lines, and waterlogged coastal villages; food drops underway."
         )
         z3 = AffectedZone(
             incident_id=inc2.id,
@@ -208,27 +208,27 @@ def seed_database_if_empty(db):
             incident_id=inc1.id,
             zone_id=z1.id,
             depot_id=depot1.id,
-            name="Operation Jal-Rakshak Alpha",
-            description="Emergency boat rescue and medical air-drop for trapped families in Chiplun lowlands.",
+            name="Operation Sagar-Rakshak Alpha",
+            description="Emergency amphibious rescue and medical supply airdrop for marooned coastal communities in Ganjam and South Odisha lowlands.",
             status=MissionStatusEnum.in_progress,
             priority=1,
             departure_time=datetime.utcnow() - timedelta(hours=4),
             estimated_arrival=datetime.utcnow() + timedelta(hours=2),
-            route_distance_km=210.0,
-            estimated_duration_hours=5.5
+            route_distance_km=165.0,
+            estimated_duration_hours=3.5
         )
         m2 = Mission(
             incident_id=inc1.id,
             zone_id=z2.id,
             depot_id=depot2.id,
-            name="Mahad Relief Convoy Beta",
-            description="Heavy transport convoy delivering drinking water and emergency ration packs.",
+            name="Andhra-Odisha Highway Relief Convoy Beta",
+            description="Heavy transport convoy delivering drinking water purification units, emergency ration packets, and satellite communication equipment.",
             status=MissionStatusEnum.assigned,
             priority=2,
             departure_time=datetime.utcnow() + timedelta(hours=1),
             estimated_arrival=datetime.utcnow() + timedelta(hours=6),
-            route_distance_km=145.0,
-            estimated_duration_hours=4.0
+            route_distance_km=110.0,
+            estimated_duration_hours=2.5
         )
         db.add_all([m1, m2])
 
